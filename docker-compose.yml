@@ -9,7 +9,7 @@ services:
     volumes:
       - ./mysql-data:/var/lib/mysql
       - ./mysql-config:/etc/mysql/conf.d
-      - ./chapter18/sql:/docker-entrypoint-initdb.d
+      - ./sql:/docker-entrypoint-initdb.d
     command: 
       - --explicit_defaults_for_timestamp=1
       - --tls-version=TLSv1.2,TLSv1.3
