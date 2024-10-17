@@ -1,0 +1,62 @@
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: mysql-spring-cloud
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+      - ./mysql-config:/etc/mysql/conf.d
+      - ./chapter18/sql:/docker-entrypoint-initdb.d
+    command: 
+      - --explicit_defaults_for_timestamp=1
+      - --tls-version=TLSv1.2,TLSv1.3
+    networks:
+      - spring-cloud-network
+
+  redis:
+    image: redis:6.2
+    container_name: redis-spring-cloud
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis-data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - spring-cloud-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-spring-cloud
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - spring-cloud-network
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin-spring-cloud
+    ports:
+      - "9411:9411"
+    environment:
+      - RABBIT_URI=amqp://guest:guest@rabbitmq:5672
+      - STORAGE_TYPE=mem
+    depends_on:
+      - rabbitmq
+    networks:
+      - spring-cloud-network
+
+networks:
+  spring-cloud-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  redis-data:
+  mysql-config:
